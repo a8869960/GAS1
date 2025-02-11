@@ -1,0 +1,244 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{mathtext}
+\usepackage{amsmath}
+\usepackage[unicode, pdftex]{hyperref}
+\usepackage[english,russian]{babel}
+
+\usepackage{multicol}
+\usepackage{graphicx}
+\graphicspath{{pics}}
+\usepackage{colortbl}
+
+\usepackage[
+a4paper, mag=1000, includefoot,
+left=0.9cm, right=0.9cm, top=1.2cm, bottom=1.2cm, headsep=0.8cm, footskip=0.8cm
+]{geometry}
+
+\title{Отчет. Схема с односторонними разностями $(\rho, u)$.}
+\author{Варвара Семенова}
+\date{\today}
+
+\begin{document}
+
+\makeatletter
+\renewcommand{\l@section}{\@dottedtocline{1}{0em}{2.1em}} 
+\makeatother
+
+\maketitle
+\pagenumbering{arabic}
+\tableofcontents
+
+\section{Постановка задачи}
+
+Рассмотрим систему дифференциальных уравнений, описывающую нестационарное одномерное движение вязкого баротропного газа:
+\begin{equation}
+\begin{cases}
+$$
+\displaystyle\frac {\partial \rho} {\partial t} + \frac{\partial \rho u} {\partial x} = 0,
+\\
+\displaystyle\frac {\partial \rho u} {\partial t} + \frac {\partial \rho u^2} {\partial x} + \frac {\partial p} {\partial x} = \mu \frac {\partial^2 u} {\partial x^2} + \rho f.
+$$
+\end{cases}
+\end{equation}
+Где введены следующие обозначения:
+\begin{itemize}
+    \item $\mu > 0$ - вязскость газа,
+    \item $(t, x) \in [0, T] \times [0, X]$,
+    \item $\rho = \rho(t, x)$ - функция плотности газа,
+    \item $u = u (t, x)$ - функция скорости газа,
+    \item $p = p (\rho)$ - функция давления газа и
+\begin{equation}
+    p = C_{\rho} \rho \text{ или } p = \rho^{\gamma}
+\end{equation}    
+\end{itemize}
+С начальными условиями
+\begin{equation}
+(\rho, u)|_{t = 0} = (\rho_0, u_0)
+\end{equation}
+и граничными условиями непротекания:
+\begin{equation}
+u(t,X_0) = u(t,X_1) = 0.
+\end{equation}
+
+\section{Разностная схема}
+На кождом шаге по $n = 1, 2, 3, \dots N$ нам надо будет решать две системы линейных уравнений вида $Ax = d$, где
+\begin{equation}
+A = 
+    \begin{pmatrix}
+         a_0 & b_0 & 0 & 0 & 0 & \dots & 0 & 0 & 0 & 0 \\
+         c_1 & a_1 & b_1 & 0 & 0 & \dots & 0 & 0 & 0 & 0 \\
+         0 & c_2 & a_2 & b_2 & 0 & \dots & 0 & 0 & 0 & 0 \\
+         \dots & \dots & \dots & \dots & \dots & \dots & \dots & \dots & \dots & \dots \\
+         0 & 0 & 0 & 0 & 0 & \dots & 0 & c_{M-1} & a_{M-1} & b_{M-1} \\
+         0 & 0 & 0 & 0 & 0 & \dots & 0 & 0 & c_M & a_M
+    \end{pmatrix} 
+\end{equation}
+\begin{equation}
+d^{T} = 
+    \begin{pmatrix}
+         d_0 & d_1 & d_2 & d_3 & d_4 & \dots & d_{M-2} & d_{M-1} & d_M \\
+    \end{pmatrix} 
+\end{equation}
+
+
+Рассмотрим разностную схему с односторонними разностями на множестве $[0, T] \times [0, X]$ с равномерным разбиением $t_n = 0 + n \cdot \tau, \ x_m = 0 + m * h$, где $\displaystyle \tau = \frac{T}{N}, \ h = \frac{X}{M}, \ n = 0, 1, \dots, N, \ m = 0, 1, \dots, M$:
+\begin{equation}
+    \begin{cases}
+        $$
+        H_t + \delta_1\{\hat H, V\} = f_0, \ \ x \in \omega_h \\
+        H_{t, 0} + (\hat HV)_{x, 0} = f_0 (t, x = 0), \\
+        H_{t, M} + (\hat HV)_{\bar{x}, M} = f_0 (t, x = M), \\
+        \hat HV_t + \delta\{\hat V, \hat HV\} + p(\hat H)_{\mathring{x}} = \mu \hat V_{x \bar{x}} + \hat{H}f.
+        $$
+    \end{cases}
+\end{equation}
+
+Распишем каждое уравнение системы по порядку:
+\begin{enumerate}
+    \item $H_t + \delta_1\{\hat H, V\} = f_0, \ \ x \in \omega_h$
+    \begin{equation}
+    H_t +
+        \left\{
+            \begin{array}{l}
+                (\hat{H}V)_{\bar{x}}, \ V \geq 0 \\
+                (\hat{H}V)_x, \ V < 0
+            \end{array}
+        \right\}
+    = f_0
+    \end{equation}
+    
+    $V \geq 0$) $$
+    \displaystyle \frac{H^{n+1}_{m} - H^n_m}{\tau} + \frac{H^{n+1}_mV^n_m - H^{n+1}_{m-1}V^n_{m-1}}{h} = (f_0)^n_m \ | \cdot \tau \\ $$
+    $$
+    H^{n+1}_{m} - H^n_m + \frac{\tau}{h} (H^{n+1}_mV^n_m - H^{n+1}_{m-1}V^n_{m-1}) = \tau (f_0)^n_m
+    $$
+    \begin{equation}
+        \displaystyle c_m = Coef (H^{n+1}_{m-1}) = - \frac{\tau}{h}V^n_{m-1}
+    \end{equation}
+    \begin{equation}
+        \displaystyle a_m = Coef (H^{n+1}_{m}) = 1 + \frac{\tau}{h}V^n_{m}
+    \end{equation}
+    \begin{equation}
+        \displaystyle b_m = Coef (H^{n+1}_{m+1}) = 0
+    \end{equation}
+    \begin{equation}
+        \displaystyle RHS : d_m = \tau (f_0)^n_m + H^n_m
+    \end{equation}
+
+    $V < 0$) $$
+    \displaystyle \frac{H^{n+1}_{m} - H^n_m}{\tau} + \frac{H^{n+1}_{m+1}V^n_{m+1} - H^{n+1}_{m}V^n_{m}}{h} = (f_0)^n_m \ | \cdot \tau \\ $$
+    $$
+    H^{n+1}_{m} - H^n_m + \frac{\tau}{h} (H^{n+1}_{m+1}V^n_{m+1} - H^{n+1}_{m}V^n_{m}) = \tau (f_0)^n_m
+    $$
+    \begin{equation}
+        \displaystyle c_m = Coef (H^{n+1}_{m-1}) = 0
+    \end{equation}
+    \begin{equation}
+        \displaystyle a_m = Coef (H^{n+1}_{m}) = 1 - \frac{\tau}{h}V^n_{m}
+    \end{equation}
+    \begin{equation}
+        \displaystyle b_m = Coef (H^{n+1}_{m+1}) = \frac{\tau}{h}V^n_{m+1}
+    \end{equation}
+    \begin{equation}
+        \displaystyle RHS : d_m = \tau (f_0)^n_m + H^n_m
+    \end{equation}
+    
+    \item $H_{t, 0} + (\hat HV)_{x, 0} = f_0 (t, x = 0)$
+        \begin{equation}
+        \displaystyle c_0 = 0
+    \end{equation}
+    \begin{equation}
+        \displaystyle a_0 = 1 - \frac{\tau}{h}V^n_{0}
+    \end{equation}
+    \begin{equation}
+        \displaystyle b_0 = \frac{\tau}{h}V^n_{1}
+    \end{equation}
+    \begin{equation}
+        \displaystyle RHS : d_0 = \tau (f_0)^n_0 + H^n_0
+    \end{equation}
+    
+    \item $H_{t, M} + (\hat HV)_{\bar{x}, M} = f_0 (t, x = M)$
+        \begin{equation}
+        \displaystyle c_M = - \frac{\tau}{h}V^n_{M-1}
+    \end{equation}
+    \begin{equation}
+        \displaystyle a_M = Coef (H^{n+1}_{m}) = 1 + \frac{\tau}{h}V^n_{m}
+    \end{equation}
+    \begin{equation}
+        \displaystyle b_m = Coef (H^{n+1}_{m+1}) = 0
+    \end{equation}
+    \begin{equation}
+        \displaystyle RHS : d_m = \tau (f_0)^n_m + H^n_m
+    \end{equation}
+    
+    \item $\hat HV_t + \delta\{\hat V, \hat HV\} + p(\hat H)_{\mathring{x}} = \mu \hat V_{x \bar{x}} + \hat{H}f$
+    \begin{equation}
+    \hat{H}V_t +
+        \left\{
+            \begin{array}{l}
+                \hat{H}V(\hat{V})_{\bar{x}}, \ V \geq 0 \\
+                \hat{H}V(\hat{V})_x, \ V < 0
+            \end{array}
+        \right\}
+    +p(\hat{H})_{\mathring{x}} = \mu V_{x \bar{x}} + \hat{H}f
+    \end{equation}
+     $V \geq 0$)
+
+\begin{align*}
+    \displaystyle 
+    H^{n+1}_m \Big( \frac{V^{n+1}_m - V^n_m}{\tau}\Big) + H^{n+1}_mV^n_m\Big( \frac{V^{n+1}_m - V^{n+1}_{m-1}}{h}\Big)  + \frac{p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})}{2h} = \\ = \mu \Big( \frac{V^{n+1}_{m+1} - 2V^{n+1}_m + V^{n+1}_{m-1}}{h^2} \Big) + H^{n+1}_m f^{n+1}_m \ | \cdot \tau
+\end{align*}
+\begin{align*}
+    \displaystyle 
+    H^{n+1}_m ( V^{n+1}_m - V^n_m) + H^{n+1}_mV^n_m\frac{\tau}{h}(V^{n+1}_m - V^{n+1}_{m-1})  + \frac{\tau}{2h}(p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})) = \\ = \frac{\tau \mu}{h^2} ( V^{n+1}_{m+1} - 2V^{n+1}_m + V^{n+1}_{m-1} ) + \tau H^{n+1}_m f^{n+1}_m
+\end{align*}
+
+\begin{equation}
+    c_m = Coef(V^{n+1}_{m-1}) = - \frac{\tau}{h}H^{n+1}_mV^n_m - \frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+    a_m = Coef(V^{n+1}_{m}) = H^{n+1}_m + \frac{\tau}{h}H^{n+1}_mV^n_m + 2\frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+    b_m = Coef(V^{n+1}_{m+1}) = - \frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+        \displaystyle RHS : d_m = H^{n+1}_m V^n_m - \frac{\tau}{2h}(p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})) + \tau H^{n+1}_m f^{n+1}_m
+    \end{equation}
+
+         $V < 0$)
+
+\begin{align*}
+    \displaystyle 
+    H^{n+1}_m \Big( \frac{V^{n+1}_m - V^n_m}{\tau}\Big) + H^{n+1}_mV^n_m\Big( \frac{V^{n+1}_{m+1} - V^{n+1}_{m}}{h}\Big)  + \frac{p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})}{2h} = \\ = \mu \Big( \frac{V^{n+1}_{m+1} - 2V^{n+1}_m + V^{n+1}_{m-1}}{h^2} \Big) + H^{n+1}_m f^{n+1}_m \ | \cdot \tau
+\end{align*}
+\begin{align*}
+    \displaystyle 
+    H^{n+1}_m ( V^{n+1}_m - V^n_m) + H^{n+1}_mV^n_m\frac{\tau}{h}(V^{n+1}_{m+1} - V^{n+1}_{m})  + \frac{\tau}{2h}(p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})) = \\ = \frac{\tau \mu}{h^2} ( V^{n+1}_{m+1} - 2V^{n+1}_m + V^{n+1}_{m-1} ) + \tau H^{n+1}_m f^{n+1}_m
+\end{align*}
+
+\begin{equation}
+    c_m = Coef(V^{n+1}_{m-1}) = - \frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+    a_m = Coef(V^{n+1}_{m}) = H^{n+1}_m + \frac{\tau}{h}H^{n+1}_mV^n_m + 2\frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+    b_m = Coef(V^{n+1}_{m+1}) = \frac{\tau}{h}H^{n+1}_mV^n_m - \frac{\tau\mu}{h^2}
+\end{equation}
+\begin{equation}
+        \displaystyle RHS : d_m = H^{n+1}_m V^n_m - \frac{\tau}{2h}(p(H^{n+1}_{m+1}) - p(H^{n+1}_{m-1})) + \tau H^{n+1}_m f^{n+1}_m
+    \end{equation}
+
+\end{enumerate}
+
+\include{task1}
+
+\include{task2}
+
+\include{task3}
+
+\end{document}
+
